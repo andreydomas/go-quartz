@@ -235,7 +235,7 @@ func (sched *StdScheduler) Stop() {
 		return
 	}
 
-	log.Printf("Closing the StdScheduler.")
+	sched.log("Closing the StdScheduler.")
 	sched.cancel()
 	sched.started = false
 }
@@ -247,7 +247,7 @@ func (sched *StdScheduler) startExecutionLoop(ctx context.Context) {
 			select {
 			case <-sched.interrupt:
 			case <-ctx.Done():
-				log.Printf("Exit the empty execution loop.")
+				sched.log("Exit the empty execution loop.")
 				return
 			}
 		} else {
@@ -260,7 +260,7 @@ func (sched *StdScheduler) startExecutionLoop(ctx context.Context) {
 				t.Stop()
 
 			case <-ctx.Done():
-				log.Printf("Exit the execution loop.")
+				sched.log("Exit the execution loop.")
 				t.Stop()
 				return
 			}
@@ -343,7 +343,7 @@ func (sched *StdScheduler) executeAndReschedule(ctx context.Context) {
 	// reschedule the Job
 	nextRunTime, err := it.Trigger.NextFireTime(it.priority)
 	if err != nil {
-		log.Printf("The Job '%s' got out the execution loop: %q", it.Job.Description(), err.Error())
+		sched.log("The Job '%s' got out the execution loop: %q", it.Job.Description(), err.Error())
 		return
 	}
 	it.priority = nextRunTime
@@ -366,7 +366,7 @@ func (sched *StdScheduler) startFeedReader(ctx context.Context) {
 				sched.reset(ctx)
 			}()
 		case <-ctx.Done():
-			log.Printf("Exit the feed reader.")
+			sched.log("Exit the feed reader.")
 			return
 		}
 	}
