@@ -51,6 +51,9 @@ type Scheduler interface {
 
 	// Stop shutdowns the scheduler.
 	Stop()
+
+	// SetLog sets custom logger
+	SetLog(func(string, ...any))
 }
 
 // StdScheduler implements the quartz.Scheduler interface.
@@ -64,6 +67,7 @@ type StdScheduler struct {
 	dispatch  chan *item
 	started   bool
 	opts      StdSchedulerOptions
+	log       func(string, ...any)
 }
 
 type StdSchedulerOptions struct {
@@ -99,7 +103,12 @@ func NewStdSchedulerWithOptions(opts StdSchedulerOptions) *StdScheduler {
 		feeder:    make(chan *item),
 		dispatch:  make(chan *item),
 		opts:      opts,
+		log:       log.Printf,
 	}
+}
+
+func (sched *StdScheduler) SetLog(fn func(string, ...any)) {
+	sched.log = fn
 }
 
 // ScheduleJob schedules a Job using a specified Trigger.
